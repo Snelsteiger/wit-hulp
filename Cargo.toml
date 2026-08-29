@@ -210,9 +210,10 @@ exclude = ["vdi/host", "examples/custom_plugin"]
 libxdo-sys = { path = "libs/libxdo-sys-stub" }
 
 [package.metadata.winres]
-LegalCopyright = "Copyright © 2026 Purslane Tech Pte. Ltd. All rights reserved."
-ProductName = "RustDesk"
-FileDescription = "RustDesk Remote Desktop"
+LegalCopyright = "© 2026 W-IT Computers. GPLv3; gebaseerd op RustDesk."
+CompanyName = "W-IT Computers"
+ProductName = "W-IT Hulp op afstand"
+FileDescription = "W-IT Hulp op afstand"
 OriginalFilename = "rustdesk.exe"
 
 [target.'cfg(target_os="windows")'.build-dependencies]

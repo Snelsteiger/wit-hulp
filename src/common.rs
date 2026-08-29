@@ -2080,7 +2080,40 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
     ThrottledInterval::new(i)
 }
 
+/// W-IT branding: fixed server settings baked into the binary.
+///
+/// These are written into `OVERWRITE_SETTINGS` so that end users can neither
+/// change nor persist a different rendezvous server or key, and into
+/// `BUILTIN_SETTINGS` so the server settings UI is hidden.
+/// Called from `load_custom_client()` / `read_custom_client()` so that every
+/// entry point (core_main, flutter ffi, macOS service) applies them.
+pub const WIT_RENDEZVOUS_SERVER: &str = "hulp.w-it.nl";
+pub const WIT_RS_PUB_KEY: &str = "0XF7RCktevlXLIlSBc84vd2kRE5+PM0dmyGySXwsczw=";
+
+pub fn apply_wit_builtin_settings() {
+    {
+        let mut overwrite_settings = config::OVERWRITE_SETTINGS.write().unwrap();
+        overwrite_settings.insert(
+            keys::OPTION_CUSTOM_RENDEZVOUS_SERVER.to_owned(),
+            WIT_RENDEZVOUS_SERVER.to_owned(),
+        );
+        overwrite_settings.insert(keys::OPTION_KEY.to_owned(), WIT_RS_PUB_KEY.to_owned());
+    }
+    {
+        let mut builtin_settings = config::BUILTIN_SETTINGS.write().unwrap();
+        builtin_settings.insert(
+            keys::OPTION_HIDE_SERVER_SETTINGS.to_owned(),
+            "Y".to_owned(),
+        );
+        builtin_settings.insert(
+            keys::OPTION_HIDE_POWERED_BY_ME.to_owned(),
+            "Y".to_owned(),
+        );
+    }
+}
+
 pub fn load_custom_client() {
+    apply_wit_builtin_settings();
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
@@ -2179,6 +2212,7 @@ pub fn get_dst_align_rgba() -> usize {
 }
 
 pub fn read_custom_client(config: &str) {
+    apply_wit_builtin_settings();
     let Ok(data) = decode64(config) else {
         log::error!("Failed to decode custom client config");
         return;

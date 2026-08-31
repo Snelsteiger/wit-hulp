@@ -87,6 +87,8 @@ jobs:
     name: ${{ matrix.job.target }}
     needs: [build-RustDeskTempTopMostWindow, generate-bridge]
     runs-on: ${{ matrix.job.os }}
+    permissions:
+      contents: write # nodig zodat action-gh-release een release/tag mag aanmaken
     strategy:
       fail-fast: false
       matrix:

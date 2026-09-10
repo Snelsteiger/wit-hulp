@@ -337,7 +337,10 @@ jobs:
           python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/WIT-Hulp.exe
           popd
           mkdir -p ./SignOutput
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/WIT-Hulp-${{ env.VERSION }}-install.exe
+          # Tag + buildnummer in de naam: twee builds kunnen nooit dezelfde bestandsnaam krijgen
+          # (dat kostte eerder een verkeerde installatie). Moet op 'install.exe' blijven eindigen,
+          # anders start de packer de installatieflow niet.
+          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/WIT-Hulp-${{ env.TAG_NAME }}-b${{ github.run_number }}-install.exe
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
@@ -357,7 +360,8 @@ jobs:
           $msiPlatform = if ('${{ matrix.job.arch }}' -eq 'aarch64') { 'ARM64' } else { 'x64' }
           msbuild msi.sln -p:Configuration=Release -p:Platform=$msiPlatform /p:TargetVersion=Windows10
           $msi = Get-ChildItem ./Package/bin/*/Release/en-us/Package.msi | Select-Object -First 1
-          mv $msi.FullName ../../SignOutput/WIT-Hulp-${{ env.VERSION }}-${{ matrix.job.arch }}.msi
+          # Zelfde unieke naamgeving als de exe-installer (tag + buildnummer).
+          mv $msi.FullName ../../SignOutput/WIT-Hulp-${{ env.TAG_NAME }}-b${{ github.run_number }}-${{ matrix.job.arch }}.msi
           sha256sum ../../SignOutput/WIT-Hulp-*.msi
 
       - name: Sign rustdesk self-extracted file
